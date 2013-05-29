@@ -1,8 +1,10 @@
+import os
+import json
 import pytest
 from flask import Flask
 from media_type import MediaType, can_accept
-from renderers import Renderer, TemplateRenderer
-from . import provides
+from .renderers import Renderer, TemplateRenderer
+from . import provides, Render
 
 @pytest.fixture
 def app():
@@ -12,6 +14,61 @@ def app():
     ctx = app.test_request_context()
     ctx.push()
     return app
+
+def test_render(app, tmpdir):
+    app.template_folder = str(tmpdir)
+    template = '''
+    <html><body>{{ data['key'] }}</body></html>
+    '''.strip()
+    template_name = 'test.html'
+    with open(os.path.join(app.template_folder, template_name), 'w') as f:
+        f.write(template)
+    client = app.test_client()
+
+    # Create Custom renderer
+    class JSONRenderer(Renderer):
+        __media_types__ = ('application/json', )
+        def render(self, data, template=None, ctx=None):
+            return json.dumps(data)
+
+    # Render function
+    render = Render(renderers=[TemplateRenderer, JSONRenderer])
+
+    @app.route('/render')
+    def first():
+        return render({'key':'value'}, 'test')
+
+    @app.route('/status')
+    @provides('application/json')
+    def second():
+        return render(None, 'test', 204)
+
+    headers = {
+        'Accept':'application/json'
+    }
+    rv = client.get('/render', headers=headers)
+    assert 200 == rv.status_code
+    assert {'key':'value'} == json.loads(rv.data)
+
+    headers = {
+        'Accept':'text/html'
+    }
+    rv = client.get('/render', headers=headers)
+    assert 200 == rv.status_code
+    assert '<html><body>value</body></html>' == rv.data
+
+    headers = {
+        'Accept':'application/json; q=0.7, text/html; q=0.8'
+    }
+    rv = client.get('/render', headers=headers)
+    assert 200 == rv.status_code
+    assert '<html><body>value</body></html>' == rv.data
+
+    headers = {
+        'Accept':'application/json; q=0.7, text/html; q=0.8'
+    }
+    rv = client.get('/status', headers=headers)
+    assert 204 == rv.status_code
 
 def test_provides(app):
     client = app.test_client()
@@ -35,50 +92,65 @@ def test_provides(app):
     def fourth():
         return 'Right'
 
+    @app.route('/5')
+    @provides('text/*', 'application/json', to='provide_type')
+    def fifth(provide_type):
+        return str(provide_type)
+
     # 1
     headers = {
         'Accept':'application/json'
     }
-    assert client.get('/1', headers=headers).status_code == 200
+    assert 200 == client.get('/1', headers=headers).status_code
 
     headers = {
         'Accept':'text/html'
     }
-    assert client.get('/1', headers=headers).status_code == 406
+    assert 406 == client.get('/1', headers=headers).status_code
 
     # 2
     headers = {
         'Accept':'text/html'
     }
-    assert client.get('/2', headers=headers).status_code == 200
+    assert 200 == client.get('/2', headers=headers).status_code
 
     headers = {
         'Accept':'application/json'
     }
-    assert client.get('/2', headers=headers).status_code == 200
+    assert 200 == client.get('/2', headers=headers).status_code
 
     headers = {
         'Accept':'image/jpeg'
     }
-    assert client.get('/2', headers=headers).status_code == 406
+    assert 406 == client.get('/2', headers=headers).status_code
 
     # 3
     headers = {
         'Accept':'text/html, application/json'
     }
-    assert client.get('/3', headers=headers).status_code == 200
+    assert 200 == client.get('/3', headers=headers).status_code
 
     headers = {
         'Accept':'application/json'
     }
-    assert client.get('/3', headers=headers).status_code == 406
+    assert 406 == client.get('/3', headers=headers).status_code
 
     # 4
     headers = {
         'Accept':'application/json'
     }
-    assert client.get('/4', headers=headers).status_code == 200
+    assert 200 == client.get('/4', headers=headers).status_code
 
+    # 5
+    headers = {
+        'Accept':'application/json'
+    }
+    assert 'application/json' == client.get('/5', headers=headers).data
+
+    headers = {
+        'Accept':'text/html'
+    }
+    assert 'text/html' == client.get('/5', headers=headers).data
 
 def test_media_type():
     application_json_type = MediaType('application/json')

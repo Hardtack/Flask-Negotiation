@@ -89,22 +89,34 @@ def acceptable_media_types(request):
     li = li or ['*/*']
     return sorted(map(MediaType, li), reverse=True)
 
+
 def best_renderer(renderers, media_types):
     """Choose best renderer and media type
     """
     for media_type in media_types:
         for renderer in renderers:
-            if renderer.can_render(media_type):
-                return renderer, renderer.choose_media_type(media_type)
+            choosen = renderer.choose_media_type(media_type)
+            if not choosen is None:
+                return renderer, choosen
     return None, None
 
-def can_accept(acceptables, media_types):
-    """Determines acceptablility.  
-    :param media_types: list of media type supported
+def choose_media_type(acceptables, media_types):
+    """Choose best acceptable media type.  
     :param acceptables: list of media type acceptable
+    :param media_types: list of media type supported
+
+    :returns: best acceptable media type or :const:`None` if cannot handle.  
     """
     for acceptable in acceptables:
         for media_type in media_types:
             if acceptable in media_type:
-                return True
-    return False
+                return acceptable
+    return None
+
+def can_accept(acceptables, media_types):
+    """Determines acceptablility.  
+    :param acceptables: list of media type acceptable
+    :param media_types: list of media type supported
+
+    """
+    return choose_media_type(acceptables, media_types) is not None

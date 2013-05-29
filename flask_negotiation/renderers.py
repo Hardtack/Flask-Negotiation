@@ -26,7 +26,7 @@ class Renderer(object):
     def can_render(self, media_type):
         """Determines that renderer can render `media_type`.  
         """
-        return not all(x not in media_type for x in self.media_types)
+        return not self.choose_media_type(media_type) is None
 
     def choose_media_type(self, media_type):
         """Chooses media type that will be rendered.  

@@ -4,10 +4,10 @@
 from flask import request
 from functools import wraps
 from renderers import Renderer
-from media_type import acceptable_media_types, MediaType, can_accept
+from media_type import acceptable_media_types, MediaType, choose_media_type
 from werkzeug.exceptions import NotAcceptable
 
-def provides(media_type, *args):
+def provides(media_type, *args, **kwargs):
     """Decorator that recognizes acceptablility of view function.  
     For example::   
 
@@ -38,7 +38,17 @@ def provides(media_type, *args):
         def json_and_html():
             data = get_data()
             return render(data)
+
+    And you can handle choosen media type::
+
+        from flask.ext.negotiation.decorators import provides
+        @provides('application/json', 'text/html', to='provide_type')
+        def handle_type(provide_type):
+            return str(provide_type)
+
+    `to` does *not* guarantee same media type with `render` function.  
     """
+    to = kwargs.get('to', None)
     # Collect media types
     media_types = []
     for media_type in (media_type, ) + args:
@@ -53,8 +63,11 @@ def provides(media_type, *args):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             acceptables = acceptable_media_types(request)
-            if can_accept(acceptables, media_types):
-                return fn(*args, **kwargs)
-            raise NotAcceptable()
+            acceptable = choose_media_type(acceptables, media_types)
+            if acceptable is None:
+                raise NotAcceptable()
+            if not to is None:
+                kwargs.update({to:acceptable})
+            return fn(*args, **kwargs)
         return wrapper
     return decorator
