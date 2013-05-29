@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotAcceptable
 from renderers import TemplateRenderer
 from decorators import provides
 
-__all__ = ('Render', 'default_renderers', 'MediaType', 'provides')
+__all__ = ('Render', 'MediaType', 'provides')
 
 class Render(object):
     """Dynamic function class renders content.  
