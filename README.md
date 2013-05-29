@@ -38,6 +38,7 @@ And you can render data
     @renderer('application/json')
     def json_renderer(data, template=None, ctx=None):
         return json.dumps(data)
+        
     render = Render(renderers=[template_renderer, json_renderer])
 
     @app.route('/render')
@@ -50,3 +51,5 @@ And you can render data
 
 It automatically choose renderer by `Accept` HTTP Field, and render to 
 `Response` object.  
+
+For more details, see [documentation](https://flask-negotiation.readthedocs.org/en/latest/). 
