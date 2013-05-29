@@ -6,7 +6,7 @@ Better content-negotiation for flask.
 Install
 -------
 
-Install with distutil
+Install with distutils
 
     python setup.py install
 
