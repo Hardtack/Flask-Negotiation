@@ -30,11 +30,11 @@ def provides(media_type, *args, **kwargs):
 
     Or you can use renderer::
 
-        from flask.ext.negotiation.renderes import TemplateRenderer
+        from flask.ext.negotiation.renderes import template_renderer
         from flask.ext.negotiation.decorators import provides
 
         @app.route('/json_and_html')
-        @provides(TemplateRenderer, 'application/json')
+        @provides(template_renderer, 'application/json')
         def json_and_html():
             data = get_data()
             return render(data)
@@ -56,6 +56,8 @@ def provides(media_type, *args, **kwargs):
             media_types.append(media_type)
         elif isinstance(media_type, type) and issubclass(media_type, Renderer):
             media_types += map(MediaType, media_type.__media_types__)
+        elif isinstance(media_type, Renderer):
+            media_types += media_type.media_types
         else:
             media_types.append(MediaType(media_type))
     # Decorator here

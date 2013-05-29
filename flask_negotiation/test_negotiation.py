@@ -3,7 +3,7 @@ import json
 import pytest
 from flask import Flask
 from media_type import MediaType, can_accept
-from .renderers import Renderer, TemplateRenderer
+from .renderers import renderer, template_renderer
 from . import provides, Render
 
 @pytest.fixture
@@ -26,13 +26,12 @@ def test_render(app, tmpdir):
     client = app.test_client()
 
     # Create Custom renderer
-    class JSONRenderer(Renderer):
-        __media_types__ = ('application/json', )
-        def render(self, data, template=None, ctx=None):
-            return json.dumps(data)
+    @renderer('application/json')
+    def json_renderer(data, template=None, ctx=None):
+        return json.dumps(data)
 
     # Render function
-    render = Render(renderers=[TemplateRenderer, JSONRenderer])
+    render = Render(renderers=[template_renderer, json_renderer])
 
     @app.route('/render')
     def first():
@@ -83,7 +82,7 @@ def test_provides(app):
         return 'Done'
 
     @app.route('/3')
-    @provides(TemplateRenderer)
+    @provides(template_renderer)
     def third():
         return 'OK'
 

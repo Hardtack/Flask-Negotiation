@@ -5,6 +5,7 @@ Renderers
 """
 from abc import ABCMeta, abstractmethod
 from flask import render_template
+from functools import wraps
 from media_type import MediaType
 
 class Renderer(object):
@@ -62,3 +63,27 @@ class TemplateRenderer(Renderer):
             'data':data
         }
         return render_template(template, **ctx)
+
+template_renderer = TemplateRenderer()
+
+class FunctionRenderer(Renderer):
+    """Renders object with a function.  
+    """
+    def __init__(self, fn, media_types):
+        super(FunctionRenderer, self).__init__()
+        self.fn = fn
+        self.__media_types__ = map(unicode, media_types)
+
+    def render(self, data, template=None, ctx=None):
+        return self.fn(data, template=template, ctx=ctx)
+
+    def __call__(self, *args, **kwargs):
+        return self.render(*args, **kwargs)
+
+def renderer(*media_types):
+    """Decorator that creates simple renderer with function.  
+    """
+    def decorator(fn):
+        renderer = wraps(fn)(FunctionRenderer(fn, media_types))
+        return renderer
+    return decorator

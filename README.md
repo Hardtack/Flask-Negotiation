@@ -31,21 +31,22 @@ If request is not acceptable, then it returns HTTP 406 (Not Acceptable)
 
 And you can render data
 
+    import json
     from flask.ext.negotiation import Render
-    from flask.ext.negotiation.renderers import Renderer, TemplateRenderer
+    from flask.ext.negotiation.renderers import renderer, template_renderer
 
-    class JSONRenderer(TemplateRenderer):
-        __media_types__ = ('application/json', )
-
-        def render(self, data, template=None, ctx=None):
-            return json.dumps(data)
-    render = Render(renderers=[TemplateRenderer, JSONRenderer])
+    @renderer('application/json')
+    def json_renderer(data, template=None, ctx=None):
+        return json.dumps(data)
+    render = Render(renderers=[template_renderer, json_renderer])
 
     @app.route('/render')
-    def render():
+    def render_view():
         data = get_data()
+
         ...
+
         return render(data, 'data/show.html')
 
 It automatically choose renderer by `Accept` HTTP Field, and render to 
-:class:`~flask.Response` object.  
+`Response` object.  

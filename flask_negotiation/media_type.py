@@ -56,6 +56,8 @@ class MediaType(object):
         return self == other
 
     def __eq__(self, other):
+        if isinstance(other, basestring):
+            return unicode(self) == other
         return (self.main_type == other.main_type and self.sub_type ==
             other.sub_type)
 
