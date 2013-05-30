@@ -14,7 +14,7 @@ __all__ = ('Render', 'MediaType', 'provides')
 class Render(object):
     """Dynamic function class renders content.  
     """
-    def __init__(self, renderers=(TemplateRenderer, )):
+    def __init__(self, renderers=(TemplateRenderer(), )):
         super(Render, self).__init__()
         self.renderers = renderers
 

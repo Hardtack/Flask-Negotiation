@@ -8,7 +8,7 @@ Flask-Negotiation
 
 Flask-Negotiation is a flask extention that provides better content-negotiation.
 
-Repository is hosted on `GitHub <https://github.com/Hardtack/Flask-Negotiation>`_
+Repository is hosted on `GitHub <https://github.com/Hardtack/Flask-Negotiation>`_.  
 
 User's Guide
 ------------
@@ -17,7 +17,6 @@ User's Guide
    :maxdepth: 2
 
    guide
-
 
 Indices And Tables
 ------------------
