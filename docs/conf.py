@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Flask-Negotiation documentation build configuration file, created by
-# sphinx-quickstart on Thu May 30 01:46:30 2013.
+# sphinx-quickstart on Thu May 30 16:08:20 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -16,7 +16,6 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.abspath('_themes'))
 
@@ -27,7 +26,7 @@ sys.path.append(os.path.abspath('_themes'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -86,7 +85,7 @@ exclude_patterns = ['_build']
 pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
-modindex_common_prefix = ['test_']
+#modindex_common_prefix = []
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False

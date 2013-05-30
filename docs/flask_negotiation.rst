@@ -33,3 +33,11 @@ flask_negotiation Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`test_negotiation` Module
+------------------------------
+
+.. automodule:: flask_negotiation.test_negotiation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

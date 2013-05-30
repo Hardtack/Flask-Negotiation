@@ -18,18 +18,10 @@ User's Guide
 
    guide
 
-
-API Reference
--------------
-
-.. toctree::
-   :maxdepth: 2
-
-   modules
-
 Indices And Tables
 ------------------
 
 * :ref:`genindex`
+* :ref:`modindex`
 * :ref:`search`
 
