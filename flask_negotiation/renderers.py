@@ -67,6 +67,9 @@ class JSONRenderer(Renderer):
     __media_types__ = ('application/json',)
 
     def __init__(self, encoder=json.JSONEncoder()):
+        """
+        :param encoder: encoder to be used with renderer.  
+        """
         super(JSONRenderer, self).__init__()
         self.encoder = encoder
 

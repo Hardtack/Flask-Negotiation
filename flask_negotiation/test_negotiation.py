@@ -3,7 +3,7 @@ import json
 import pytest
 from flask import Flask
 from media_type import MediaType, can_accept
-from .renderers import renderer, template_renderer
+from .renderers import renderer, template_renderer, json_renderer
 from . import provides, Render
 
 @pytest.fixture
@@ -15,6 +15,32 @@ def app():
     ctx.push()
     return app
 
+def test_renderer(app, tmpdir):
+    # Template renderer
+    app.template_folder = str(tmpdir)
+    template = '''
+    <html><body>{{ data['key'] }}</body></html>
+    '''.strip()
+    template_name = 'test.html'
+    with open(os.path.join(app.template_folder, template_name), 'w') as f:
+        f.write(template)
+
+    data = {'key':'value'}
+
+    rendered = template_renderer.render(data, 'test.html')
+    assert '<html><body>value</body></html>' == rendered
+
+    rendered = json_renderer.render(data)
+    assert data == json.loads(rendered)
+
+    # Create Custom renderer
+    @renderer('application/json')
+    def custom_renderer(data, template=None, ctx=None):
+        return json.dumps({'data':data})
+
+    rendered = custom_renderer.render(data)
+    assert data == json.loads(rendered)['data']
+
 def test_render(app, tmpdir):
     app.template_folder = str(tmpdir)
     template = '''
@@ -25,13 +51,8 @@ def test_render(app, tmpdir):
         f.write(template)
     client = app.test_client()
 
-    # Create Custom renderer
-    @renderer('application/json')
-    def custom_renderer(data, template=None, ctx=None):
-        return json.dumps({'data':data})
-
     # Render function
-    render = Render(renderers=[template_renderer, custom_renderer])
+    render = Render(renderers=[template_renderer, json_renderer])
 
     @app.route('/render')
     def first():
@@ -47,7 +68,7 @@ def test_render(app, tmpdir):
     }
     rv = client.get('/render', headers=headers)
     assert 200 == rv.status_code
-    assert {'key':'value'} == json.loads(rv.data)['data']
+    assert {'key':'value'} == json.loads(rv.data)
 
     headers = {
         'Accept':'text/html'
