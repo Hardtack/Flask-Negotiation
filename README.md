@@ -33,12 +33,9 @@ And you can render data
 
     import json
     from flask.ext.negotiation import Render
-    from flask.ext.negotiation.renderers import renderer, template_renderer
+    from flask.ext.negotiation.renderers import (renderer, template_renderer,
+        json_renderer)
 
-    @renderer('application/json')
-    def json_renderer(data, template=None, ctx=None):
-        return json.dumps(data)
-        
     render = Render(renderers=[template_renderer, json_renderer])
 
     @app.route('/render')

@@ -27,11 +27,11 @@ def test_render(app, tmpdir):
 
     # Create Custom renderer
     @renderer('application/json')
-    def json_renderer(data, template=None, ctx=None):
-        return json.dumps(data)
+    def custom_renderer(data, template=None, ctx=None):
+        return json.dumps({'data':data})
 
     # Render function
-    render = Render(renderers=[template_renderer, json_renderer])
+    render = Render(renderers=[template_renderer, custom_renderer])
 
     @app.route('/render')
     def first():
@@ -47,7 +47,7 @@ def test_render(app, tmpdir):
     }
     rv = client.get('/render', headers=headers)
     assert 200 == rv.status_code
-    assert {'key':'value'} == json.loads(rv.data)
+    assert {'key':'value'} == json.loads(rv.data)['data']
 
     headers = {
         'Accept':'text/html'

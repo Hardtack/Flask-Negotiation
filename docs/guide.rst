@@ -51,12 +51,12 @@ First, You have to define a renderer::
     from flask.ext.negotiation.renderer import renderer, template_renderer
 
     @renderer('application/json')
-    def json_renderer(data, template=None, ctx=None):
-        return json.dumps(data)
+    def custom_renderer(data, template=None, ctx=None):
+        return json.dumps({'data':data})
 
 Then create a instance of :class:`Render`:: 
 
-    render = Render(renderers=(template_renderer, json_renderer))
+    render = Render(renderers=(template_renderer, custom_renderer))
 
 In module defining views import `render`:: 
 
@@ -96,4 +96,5 @@ response will be like::
 
 When `Accept` is `application/json`, response will be like:: 
 
-    {"content": "secret", "data_id": 3}
+    {"data": {"content": "secret", "data_id": 3}}
+

@@ -3,6 +3,7 @@
 
 Renderers
 """
+import json
 from abc import ABCMeta, abstractmethod
 from flask import render_template
 from functools import wraps
@@ -51,10 +52,6 @@ class TemplateRenderer(Renderer):
     """
     __media_types__ = ('text/html', 'application/xhtml+xml')
 
-    @classmethod
-    def default_template(cls):
-        return ''
-
     def render(self, data, template=None, ctx=None):
         template = template or ''
         if not template.endswith('.html'):
@@ -64,7 +61,17 @@ class TemplateRenderer(Renderer):
         }
         return render_template(template, **ctx)
 
-template_renderer = TemplateRenderer()
+class JSONRenderer(Renderer):
+    """Renders object to json with JSONEncoder.
+    """
+    __media_types__ = ('application/json',)
+
+    def __init__(self, encoder=json.JSONEncoder()):
+        super(JSONRenderer, self).__init__()
+        self.encoder = encoder
+
+    def render(self, data, template=None, ctx=None):
+        return self.encoder.encode(data)
 
 class FunctionRenderer(Renderer):
     """Renders object with a function.  
@@ -87,3 +94,7 @@ def renderer(*media_types):
         renderer = wraps(fn)(FunctionRenderer(fn, media_types))
         return renderer
     return decorator
+
+# default_renderers
+template_renderer = TemplateRenderer()
+json_renderer = JSONRenderer()
