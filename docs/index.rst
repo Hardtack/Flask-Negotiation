@@ -16,6 +16,7 @@ User's Guide
 .. toctree::
    :maxdepth: 2
 
+   installation
    guide
 
 Indices And Tables
