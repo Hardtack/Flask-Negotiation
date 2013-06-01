@@ -3,7 +3,8 @@ import json
 import pytest
 from flask import Flask
 from media_type import MediaType, can_accept
-from .renderers import renderer, template_renderer, json_renderer
+from .renderers import (renderer, template_renderer, json_renderer,
+    TemplateRenderer)
 from . import provides, Render
 
 @pytest.fixture
@@ -29,6 +30,19 @@ def test_renderer(app, tmpdir):
 
     rendered = template_renderer.render(data, 'test.html')
     assert '<html><body>value</body></html>' == rendered
+
+    # Custom extension
+    template_renderer2 = TemplateRenderer(ext='tpl')
+    template = '''
+    <html><body><div>{{ data['key'] }}</div></body></html>
+    '''.strip()
+    template_name = 'test.tpl'
+    with open(os.path.join(app.template_folder, template_name), 'w') as f:
+        f.write(template)
+    rendered = template_renderer2.render(data, 'test')
+    assert '<html><body><div>value</div></body></html>' == rendered
+
+    # JSON Renderer
 
     rendered = json_renderer.render(data)
     assert data == json.loads(rendered)

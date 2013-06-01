@@ -52,10 +52,15 @@ class TemplateRenderer(Renderer):
     """
     __media_types__ = ('text/html', 'application/xhtml+xml')
 
+    def __init__(self, ext='html'):
+        super(TemplateRenderer, self).__init__()
+        self.ext = ext
+
     def render(self, data, template=None, ctx=None):
         template = template or ''
-        if not template.endswith('.html'):
-            template += '.html'
+        ext = '.' + self.ext
+        if not template.endswith(ext):
+            template += ext
         ctx = ctx or {
             'data':data
         }
