@@ -13,7 +13,7 @@ requires = [
 
 setup(
     name='Flask-Negotiation',
-    version='0.1.1',
+    version='0.1.2',
     url='http://blog.hardtack.me/',
     author='GunWoo Choi',
     author_email='6566gun@gmail.com',
