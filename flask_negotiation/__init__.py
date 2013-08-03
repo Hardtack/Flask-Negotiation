@@ -3,9 +3,8 @@
 
 Provides better content-negotiation for flask.
 """
-from flask import Response, request
+from flask import Response, request, abort
 from media_type import acceptable_media_types, best_renderer, MediaType
-from werkzeug.exceptions import NotAcceptable
 from renderers import TemplateRenderer
 from decorators import provides
 
@@ -71,7 +70,7 @@ class Render(object):
         media_types = acceptable_media_types(request)
         renderer, rendered_media_type = best_renderer(renderers, media_types)
         if renderer is None:
-            raise NotAcceptable()
+            abort(406)
         body = renderer.render(data, template, ctx)
         return Response(body, status, headers, unicode(rendered_media_type),
             content_type=unicode(rendered_media_type))
