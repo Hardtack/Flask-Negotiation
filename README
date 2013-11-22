@@ -6,9 +6,9 @@ Better content-negotiation for flask.
 Install
 -------
 
-Install with distutils
+Install with pip
 
-    python setup.py install
+    pip install Flask-Negotiation
 
 Usage
 -----
