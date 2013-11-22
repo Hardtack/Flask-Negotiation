@@ -4,6 +4,7 @@
 HTTP media type
 """
 
+
 def parse_header(s):
     """Parses parameter header
     """
@@ -18,13 +19,14 @@ def parse_header(s):
             if len(value) >= 2 and value[0] == value[-1] == '"':
                 value = value[1:-1]
                 value = value.replace(r'\\', '\\').replace(r'\"', '"')
-            pdict[name]=value
+            pdict[name] = value
     return key, pdict
+
 
 def _parse_header_params(s):
     li = []
     while s[:1] == ';':
-        s=s[1:]
+        s = s[1:]
         end = s.find(';')
         while end > 0 and s.count('"', 0, end) % 2:
             # For quote
@@ -34,8 +36,9 @@ def _parse_header_params(s):
         s = s[end:]
     return li
 
+
 class MediaType(object):
-    """Abstracted media type class.  
+    """Abstracted media type class.
     """
     def __init__(self, raw):
         raw = raw or ''
@@ -58,8 +61,8 @@ class MediaType(object):
     def __eq__(self, other):
         if isinstance(other, basestring):
             return unicode(self) == other
-        return (self.main_type == other.main_type and self.sub_type ==
-            other.sub_type)
+        return (self.main_type == other.main_type and
+                self.sub_type == other.sub_type)
 
     def __repr__(self):
         return '<media type:' + str(self) + '>'
@@ -68,26 +71,22 @@ class MediaType(object):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return u'; '.join(
-            [u'%s/%s' % (self.main_type, self.sub_type)] +
-            [u'%s=%s' % (k, v) for k, v in self.params.iteritems()]
-        )
+        return u'; '.join([u'%s/%s' % (self.main_type, self.sub_type)] +
+                          [u'%s=%s' % (k, v)
+                           for k, v in self.params.iteritems()])
 
     def __cmp__(self, other):
-        return cmp(
-            float(self.params.get('q', '1.0')),
-            float(other.params.get('q','1.0'))
-        )
+        return cmp(float(self.params.get('q', '1.0')),
+                   float(other.params.get('q', '1.0')))
+
 
 def acceptable_media_types(request):
     """Extract acceptable media types from request
     """
-    if request.headers.has_key('accept'):
-        li = [
-            x.strip() for x in request.headers['accept'].split(',')
-        ]
+    if 'accept' in request.headers:
+        li = [x.strip() for x in request.headers['accept'].split(',')]
     else:
-        li =  ['*/*']
+        li = ['*/*']
     li = li or ['*/*']
     return sorted(map(MediaType, li), reverse=True)
 
@@ -102,12 +101,13 @@ def best_renderer(renderers, media_types):
                 return renderer, choosen
     return None, None
 
+
 def choose_media_type(acceptables, media_types):
-    """Choose best acceptable media type.  
+    """Choose best acceptable media type.
     :param acceptables: list of media type acceptable
     :param media_types: list of media type supported
 
-    :returns: best acceptable media type or :const:`None` if cannot handle.  
+    :returns: best acceptable media type or :const:`None` if cannot handle.
     """
     for acceptable in acceptables:
         for media_type in media_types:
@@ -115,8 +115,9 @@ def choose_media_type(acceptables, media_types):
                 return acceptable
     return None
 
+
 def can_accept(acceptables, media_types):
-    """Determines acceptablility.  
+    """Determines acceptablility.
     :param acceptables: list of media type acceptable
     :param media_types: list of media type supported
 

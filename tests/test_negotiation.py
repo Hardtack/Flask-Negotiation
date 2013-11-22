@@ -1,11 +1,14 @@
 import os
 import json
+
 import pytest
 from flask import Flask
-from media_type import MediaType, can_accept
-from .renderers import (renderer, template_renderer, json_renderer,
-    TemplateRenderer)
-from . import provides, Render
+
+from flask_negotiation import provides, Render
+from flask_negotiation.media_type import MediaType, can_accept
+from flask_negotiation.renderers import (renderer, template_renderer,
+                                         json_renderer, TemplateRenderer)
+
 
 @pytest.fixture
 def app():
@@ -15,6 +18,7 @@ def app():
     ctx = app.test_request_context()
     ctx.push()
     return app
+
 
 def test_renderer(app, tmpdir):
     # Template renderer
@@ -26,7 +30,7 @@ def test_renderer(app, tmpdir):
     with open(os.path.join(app.template_folder, template_name), 'w') as f:
         f.write(template)
 
-    data = {'key':'value'}
+    data = {'key': 'value'}
 
     rendered = template_renderer.render(data, 'test.html')
     assert '<html><body>value</body></html>' == rendered
@@ -50,10 +54,11 @@ def test_renderer(app, tmpdir):
     # Create Custom renderer
     @renderer('application/json')
     def custom_renderer(data, template=None, ctx=None):
-        return json.dumps({'data':data})
+        return json.dumps({'data': data})
 
     rendered = custom_renderer.render(data)
     assert data == json.loads(rendered)['data']
+
 
 def test_render(app, tmpdir):
     app.template_folder = str(tmpdir)
@@ -70,7 +75,7 @@ def test_render(app, tmpdir):
 
     @app.route('/render')
     def first():
-        return render({'key':'value'}, 'test')
+        return render({'key': 'value'}, 'test')
 
     @app.route('/status')
     @provides('application/json')
@@ -78,34 +83,36 @@ def test_render(app, tmpdir):
         return render(None, 'test', 204)
 
     headers = {
-        'Accept':'application/json'
+        'Accept': 'application/json'
     }
     rv = client.get('/render', headers=headers)
     assert 200 == rv.status_code
-    assert {'key':'value'} == json.loads(rv.data)
+    assert {'key': 'value'} == json.loads(rv.data)
 
     headers = {
-        'Accept':'text/html'
-    }
-    rv = client.get('/render', headers=headers)
-    assert 200 == rv.status_code
-    assert '<html><body>value</body></html>' == rv.data
-
-    headers = {
-        'Accept':'application/json; q=0.7, text/html; q=0.8'
+        'Accept': 'text/html'
     }
     rv = client.get('/render', headers=headers)
     assert 200 == rv.status_code
     assert '<html><body>value</body></html>' == rv.data
 
     headers = {
-        'Accept':'application/json; q=0.7, text/html; q=0.8'
+        'Accept': 'application/json; q=0.7, text/html; q=0.8'
+    }
+    rv = client.get('/render', headers=headers)
+    assert 200 == rv.status_code
+    assert '<html><body>value</body></html>' == rv.data
+
+    headers = {
+        'Accept': 'application/json; q=0.7, text/html; q=0.8'
     }
     rv = client.get('/status', headers=headers)
     assert 204 == rv.status_code
 
+
 def test_provides(app):
     client = app.test_client()
+
     @app.route('/1')
     @provides('application/json')
     def first():
@@ -133,58 +140,59 @@ def test_provides(app):
 
     # 1
     headers = {
-        'Accept':'application/json'
+        'Accept': 'application/json'
     }
     assert 200 == client.get('/1', headers=headers).status_code
 
     headers = {
-        'Accept':'text/html'
+        'Accept': 'text/html'
     }
     assert 406 == client.get('/1', headers=headers).status_code
 
     # 2
     headers = {
-        'Accept':'text/html'
+        'Accept': 'text/html'
     }
     assert 200 == client.get('/2', headers=headers).status_code
 
     headers = {
-        'Accept':'application/json'
+        'Accept': 'application/json'
     }
     assert 200 == client.get('/2', headers=headers).status_code
 
     headers = {
-        'Accept':'image/jpeg'
+        'Accept': 'image/jpeg'
     }
     assert 406 == client.get('/2', headers=headers).status_code
 
     # 3
     headers = {
-        'Accept':'text/html, application/json'
+        'Accept': 'text/html, application/json'
     }
     assert 200 == client.get('/3', headers=headers).status_code
 
     headers = {
-        'Accept':'application/json'
+        'Accept': 'application/json'
     }
     assert 406 == client.get('/3', headers=headers).status_code
 
     # 4
     headers = {
-        'Accept':'application/json'
+        'Accept': 'application/json'
     }
     assert 200 == client.get('/4', headers=headers).status_code
 
     # 5
     headers = {
-        'Accept':'application/json'
+        'Accept': 'application/json'
     }
     assert 'application/json' == client.get('/5', headers=headers).data
 
     headers = {
-        'Accept':'text/html'
+        'Accept': 'text/html'
     }
     assert 'text/html' == client.get('/5', headers=headers).data
+
 
 def test_media_type():
     application_json_type = MediaType('application/json')
@@ -199,12 +207,14 @@ def test_media_type():
 
     assert application_json_type == MediaType('application/json')
 
+
 def test_media_order():
     image_type = MediaType('image/jpeg')
     html_type = MediaType('text/html; q=0.9')
     json_type = MediaType('application/json; q=0.8')
     li = [html_type, json_type, image_type]
     assert [json_type, html_type, image_type] == sorted(li)
+
 
 def test_acceptablility():
     # Single

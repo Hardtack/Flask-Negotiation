@@ -9,29 +9,30 @@ from flask import render_template
 from functools import wraps
 from media_type import MediaType
 
+
 class Renderer(object):
-    """Base renderer class.  
+    """Base renderer class.
     """
     __metaclass__ = ABCMeta
 
     __media_types__ = ()
     """A collection of supporting media-type :class:`string`s, subclasses must
-    redefine this value.  
+    redefine this value.
     """
-    
+
     @property
     def media_types(self):
-        """Collections of abstracted media-types.  
+        """Collections of abstracted media-types.
         """
         return (MediaType(x) for x in self.__media_types__)
 
     def can_render(self, media_type):
-        """Determines that renderer can render `media_type`.  
+        """Determines that renderer can render `media_type`.
         """
         return not self.choose_media_type(media_type) is None
 
     def choose_media_type(self, media_type):
-        """Chooses media type that will be rendered.  
+        """Chooses media type that will be rendered.
         """
         chosen_type = None
         for renderer_type in self.media_types:
@@ -41,14 +42,15 @@ class Renderer(object):
 
     @abstractmethod
     def render(self, data, template=None, ctx=None):
-        """Renders `data`.  
+        """Renders `data`.
 
         You must implement it
         """
         pass
 
+
 class TemplateRenderer(Renderer):
-    """Renders object to HTML response.  
+    """Renders object to HTML response.
     """
     __media_types__ = ('text/html', 'application/xhtml+xml')
 
@@ -62,9 +64,10 @@ class TemplateRenderer(Renderer):
         if not template.endswith(ext):
             template += ext
         ctx = ctx or {
-            'data':data
+            'data': data
         }
         return render_template(template, **ctx)
+
 
 class JSONRenderer(Renderer):
     """Renders object to json with JSONEncoder.
@@ -72,8 +75,7 @@ class JSONRenderer(Renderer):
     __media_types__ = ('application/json',)
 
     def __init__(self, encoder=json.JSONEncoder()):
-        """
-        :param encoder: encoder to be used with renderer.  
+        """:param encoder: encoder to be used with renderer.
         """
         super(JSONRenderer, self).__init__()
         self.encoder = encoder
@@ -81,8 +83,9 @@ class JSONRenderer(Renderer):
     def render(self, data, template=None, ctx=None):
         return self.encoder.encode(data)
 
+
 class FunctionRenderer(Renderer):
-    """Renders object with a function.  
+    """Renders object with a function.
     """
     def __init__(self, fn, media_types):
         super(FunctionRenderer, self).__init__()
@@ -95,8 +98,9 @@ class FunctionRenderer(Renderer):
     def __call__(self, *args, **kwargs):
         return self.render(*args, **kwargs)
 
+
 def renderer(*media_types):
-    """Decorator that creates simple renderer with function.  
+    """Decorator that creates simple renderer with function.
     """
     def decorator(fn):
         renderer = wraps(fn)(FunctionRenderer(fn, media_types))

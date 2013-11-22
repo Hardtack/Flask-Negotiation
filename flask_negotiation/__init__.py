@@ -4,26 +4,27 @@
 Provides better content-negotiation for flask.
 """
 from flask import Response, request, abort
-from media_type import acceptable_media_types, best_renderer, MediaType
+
 from renderers import TemplateRenderer
-from decorators import provides
+from media_type import acceptable_media_types, best_renderer
 
 __all__ = ('Render', 'MediaType', 'provides')
 
+
 class Render(object):
-    """Dynamic function class renders content.  
+    """Dynamic function class renders content.
     """
     def __init__(self, renderers=(TemplateRenderer(), )):
         super(Render, self).__init__()
         self.renderers = renderers
 
     def __call__(self, data, template=None, status=200, headers=None,
-        renderers=None, ctx=None):
-        """Render `_data` to response.  
+                 renderers=None, ctx=None):
+        """Render `_data` to response.
 
-        :param data: rendering target.  
-        :param template: path for jinja template '.html' can be ommited.  
-        :param status: status code for HTTP response.  
+        :param data: rendering target.
+        :param template: path for jinja template '.html' can be ommited.
+        :param status: status code for HTTP response.
         :param headers: additional header informations.
         :param renderers: list of renderer will be used.  :cosnt:`None` to use
             default renderers
@@ -43,7 +44,7 @@ class Render(object):
                 return render(data)
 
         Or::
-        
+
             from flask.ext.negotiation import render
 
             @app.route('/user/<uid>')
@@ -64,7 +65,7 @@ class Render(object):
                     'content':content,
                     'author':content.author,
                 })
-            
+
         """
         renderers = renderers or self.renderers
         media_types = acceptable_media_types(request)
@@ -73,4 +74,4 @@ class Render(object):
             abort(406)
         body = renderer.render(data, template, ctx)
         return Response(body, status, headers, unicode(rendered_media_type),
-            content_type=unicode(rendered_media_type))
+                        content_type=unicode(rendered_media_type))

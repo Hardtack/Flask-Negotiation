@@ -1,15 +1,18 @@
 """:mod:`decorators` --- Decorators for Flask views
 ===================================================
 """
-from flask import request
 from functools import wraps
-from renderers import Renderer
-from media_type import acceptable_media_types, MediaType, choose_media_type
+
+from flask import request
 from werkzeug.exceptions import NotAcceptable
 
+from renderers import Renderer
+from media_type import acceptable_media_types, MediaType, choose_media_type
+
+
 def provides(media_type, *args, **kwargs):
-    """Decorator that recognizes acceptablility of view function.  
-    For example::   
+    """Decorator that recognizes acceptablility of view function.
+    For example::
 
         from flask.ext.negotiation.decorators import provides
 
@@ -18,7 +21,7 @@ def provides(media_type, *args, **kwargs):
         def json_only():
             return json.dumps({'text':'JSON Mraz'})
 
-    And you can provide multiple types like this::  
+    And you can provide multiple types like this::
 
         from flask.ext.negotiation.decorators import provides
 
@@ -46,7 +49,7 @@ def provides(media_type, *args, **kwargs):
         def handle_type(provide_type):
             return str(provide_type)
 
-    `to` does *not* guarantee same media type with `render` function.  
+    `to` does *not* guarantee same media type with `render` function.
     """
     to = kwargs.get('to', None)
     # Collect media types
@@ -60,6 +63,7 @@ def provides(media_type, *args, **kwargs):
             media_types += media_type.media_types
         else:
             media_types.append(MediaType(media_type))
+
     # Decorator here
     def decorator(fn):
         @wraps(fn)
@@ -69,7 +73,7 @@ def provides(media_type, *args, **kwargs):
             if acceptable is None:
                 raise NotAcceptable()
             if not to is None:
-                kwargs.update({to:acceptable})
+                kwargs.update({to: acceptable})
             return fn(*args, **kwargs)
         return wrapper
     return decorator
