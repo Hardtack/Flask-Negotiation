@@ -6,7 +6,8 @@ Provides better content-negotiation for flask.
 from flask import Response, request, abort
 
 from renderers import TemplateRenderer
-from media_type import acceptable_media_types, best_renderer
+from decorators import provides
+from media_type import acceptable_media_types, best_renderer, MediaType
 
 __all__ = ('Render', 'MediaType', 'provides')
 
