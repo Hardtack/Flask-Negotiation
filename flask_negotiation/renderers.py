@@ -52,7 +52,7 @@ class Renderer(object):
 class TemplateRenderer(Renderer):
     """Renders object to HTML response.
     """
-    __media_types__ = ('text/html', 'application/xhtml+xml')
+    __media_types__ = ('text/html', )
 
     def __init__(self, ext='html'):
         super(TemplateRenderer, self).__init__()
