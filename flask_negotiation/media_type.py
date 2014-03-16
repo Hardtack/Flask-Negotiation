@@ -114,7 +114,7 @@ def best_renderer(renderers, media_types):
         renderer1, choosen1, media_type1 = first
         renderer2, choosen2, media_type2 = second
         if media_type1.quality == media_type2.quality:
-            cmp(media_types.index(media_type1), media_types.index(media_type2))
+            cmp(media_types.index(media_type2), media_types.index(media_type1))
         return cmp(media_type1.quality, media_type2.quality)
 
     return tuple(sorted(choosen_items, cmp=cmp_types)[-1][:2])
