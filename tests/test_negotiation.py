@@ -5,7 +5,8 @@ import pytest
 from flask import Flask
 
 from flask_negotiation import provides, Render
-from flask_negotiation.media_type import MediaType, can_accept
+from flask_negotiation.media_type import (MediaType, can_accept,
+                                          choose_media_type)
 from flask_negotiation.renderers import (renderer, template_renderer,
                                          json_renderer, TemplateRenderer)
 
@@ -262,3 +263,25 @@ def test_acceptablility():
     media_types = map(MediaType, ['text/html', 'application/*'])
     acceptables = map(MediaType, ['image/png', 'image/jpeg'])
     assert not can_accept(acceptables, media_types)
+
+
+def test_quality():
+    assert 1.0 == MediaType('image/jpeg').quality
+    assert 0.8 == MediaType('image/jpeg; q=0.8').quality
+
+
+def test_choosing():
+    jpeg_type = MediaType('image/jpeg')
+    png_type = MediaType('image/png')
+    html_type = MediaType('text/html; q=0.9')
+    json_type = MediaType('application/json; q=0.8')
+
+    assert png_type == choose_media_type(
+        [png_type, jpeg_type],
+        map(MediaType, ['text/html', 'application/*', 'image/*'])
+    )
+
+    assert html_type == choose_media_type(
+        [json_type, html_type],
+        map(MediaType, ['text/html', 'application/*'])
+    )

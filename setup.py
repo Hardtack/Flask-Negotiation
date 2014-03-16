@@ -12,7 +12,7 @@ requires = [
 ]
 
 setup(name='Flask-Negotiation',
-      version='0.1.4',
+      version='0.1.5',
       url='http://blog.hardtack.me/',
       author='GunWoo Choi',
       author_email='6566gun@gmail.com',
@@ -24,7 +24,7 @@ setup(name='Flask-Negotiation',
       platforms='any',
       install_requires=requires,
       classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 4 - Beta',
           'Environment :: Web Environment',
           'Intended Audience :: Developers',
       ])

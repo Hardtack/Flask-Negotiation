@@ -76,8 +76,15 @@ class MediaType(object):
                            for k, v in self.params.iteritems()])
 
     def __cmp__(self, other):
-        return cmp(float(self.params.get('q', '1.0')),
-                   float(other.params.get('q', '1.0')))
+        return cmp(float(self.quality),
+                   float(other.quality))
+
+    @property
+    def quality(self):
+        q = self.params.get('q', None)
+        if q is None:
+            return 1.0
+        return float(q)
 
 
 def acceptable_media_types(request):
@@ -94,12 +101,23 @@ def acceptable_media_types(request):
 def best_renderer(renderers, media_types):
     """Choose best renderer and media type
     """
+    choosen_items = []
     for media_type in media_types:
         for renderer in renderers:
             choosen = renderer.choose_media_type(media_type)
             if not choosen is None:
-                return renderer, choosen
-    return None, None
+                choosen_items.append((renderer, choosen, media_type))
+    if not choosen_items:
+        return None, None
+
+    def cmp_types(first, second):
+        renderer1, choosen1, media_type1 = first
+        renderer2, choosen2, media_type2 = second
+        if media_type1.quality == media_type2.quality:
+            cmp(media_types.index(media_type1), media_types.index(media_type2))
+        return cmp(media_type1.quality, media_type2.quality)
+
+    return tuple(sorted(choosen_items, cmp=cmp_types)[-1][:2])
 
 
 def choose_media_type(acceptables, media_types):
@@ -109,11 +127,23 @@ def choose_media_type(acceptables, media_types):
 
     :returns: best acceptable media type or :const:`None` if cannot handle.
     """
+    choosen = []
     for acceptable in acceptables:
         for media_type in media_types:
             if acceptable in media_type:
-                return acceptable
-    return None
+                choosen.append((acceptable, media_type))
+    if not choosen:
+        return None
+
+    def cmp_types(first, second):
+        acceptable1, media_type1 = first
+        acceptable2, media_type2 = second
+        if acceptable.quality == acceptable2.quality:
+            return cmp(acceptables.index(acceptable2),
+                       acceptables.index(acceptable1))
+        return cmp(acceptable.quality, acceptable.quality)
+
+    return sorted(choosen, cmp=cmp_types)[-1][0]
 
 
 def can_accept(acceptables, media_types):
