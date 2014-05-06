@@ -36,7 +36,7 @@ class Renderer(object):
         """
         chosen_type = None
         for renderer_type in self.media_types:
-            if media_type in renderer_type:
+            if media_type in renderer_type or renderer_type in media_type:
                 chosen_type = renderer_type
         return chosen_type
 
